@@ -5,13 +5,24 @@ import { Link } from 'react-router-dom'
 function GridCard(props) {
     return (
         <div>
-            <Col lg={6} md={8} xs={24}>
+            {props.actor 
+            ? (
+                <Col lg={6} md={8} xs={24}>
                 <div style={{position: 'relative'}}>
-                    <Link to={`/movies/${props.movieId}`}>
-                        <img style={{width:'100%', height: '320px'}} src={props.image} />
-                    </Link>
+                    <img style={{width:'100%', height: '320px'}} src={props.image} />
                 </div>
-            </Col>
+            </Col>    
+            )
+            : (
+                <Col lg={6} md={8} xs={24}>
+                    <div style={{position: 'relative'}}>
+                        <Link to={`/movies/${props.movieId}`}>
+                            <img style={{width:'100%', height: '320px'}} src={props.image} />
+                        </Link>
+                    </div>
+                </Col>
+            )
+            }
         </div>
     )
 }
