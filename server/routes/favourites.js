@@ -19,6 +19,18 @@ router.post("/getFavouriteNumber", auth, async (req, res) => {
     
 });
 
+router.post("/getFavouriteMovies", auth, async (req, res) => {
+    try{
+        const favourites=await Favourite.find({ "userFrom": req.body.userFrom })
+        res.status(200).json({ success: true, favourites})
+    }
+    catch(err){
+        res.status(400).json({ msg: err });
+    }
+    
+});
+
+
 router.post("/checkFavourite", auth, async (req, res) => {
     try{
         const response=await Favourite.find({ movieId: req.body.movieId, userFrom: req.body.userFrom })

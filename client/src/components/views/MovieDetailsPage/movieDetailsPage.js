@@ -4,15 +4,25 @@ import MainImage from '../LandingPage/sections/mainImage';
 import {Button, Descriptions, Row} from 'antd'
 import GridCard from '../LandingPage/sections/gridCard';
 import FavouriteButton from './sections/favouriteButton';
+import Comments from './sections/comments';
+import axios from 'axios';
+import LikeDislikes from './sections/LikeDislikes';
 
 function MovieDetailsPage(props) {
     const movieId=props.match.params.movieId;
     const [movie, setMovie]=useState([])
     const [casts, setCasts]=useState([])
     const [toggleShowCast, setToggleShowCast] = useState(false)
+    const [loadingCast, setLoadingCast] = useState(false)
+    const [commentsList, setCommentsList] = useState([])
 
     const handleToggle=()=>{
         setToggleShowCast(!toggleShowCast)
+    }
+
+    const addNewCommentToList=(newComment)=>{
+        console.log(newComment);
+        setCommentsList(commentsList.concat(newComment));
     }
 
     useEffect(() => {
@@ -22,19 +32,35 @@ function MovieDetailsPage(props) {
             console.log(data);
             setMovie(data)
         })
+        
         fetch(`${API_URL}movie/${movieId}/credits?api_key=${API_KEY}&language=en-US`)
-            .then(response=> response.json() )
-            .then(data=>{
-                console.log(data);
-                setCasts(data.cast)
-            })
+        .then(response=> response.json() )
+        .then(data=>{
+            console.log(data);
+            setLoadingCast(!loadingCast)
+            setCasts(data.cast)
+        })
+        
+        axios.post('/api/comments/getComments', {movieId: movieId})
+        .then(response=>{
+            if(response.data.success){
+                console.log(response.data.comments);
+                setCommentsList(response.data.comments);
+            }else{
+                alert('Failed to get comments')
+            }
+        })
+        .catch(err=> console.log(err.message))
+
     }, [])
     return (
         <div>
-            {movie && 
-                <MainImage image={`${IMAGE_URL}w1280/${movie.backdrop_path}`} title={movie.original_title} text={movie.overview} />
+            {movie 
+                ? <MainImage image={`${IMAGE_URL}w1280/${movie.backdrop_path}`} title={movie.original_title} text={movie.overview} />
+                : <p>Loading...</p>
             }
             {/*Body*/}
+            
             <div style={{width:'85%', margin:'1rem auto'}}>
                 <div style={{display:'flex', justifyContent: 'flex-end'}}>
                     <FavouriteButton userFrom={localStorage.getItem('userId')} movieId={movieId} movieInfo={movie} />
@@ -67,6 +93,13 @@ function MovieDetailsPage(props) {
                 </Row>
                 )}
                 <br/>
+
+                <div style={{ display: 'flex', justifyContent: 'center' }}>
+                    <LikeDislikes movie movieId={movieId} userId={localStorage.getItem('userId')} />
+                </div>
+                <br />
+
+                <Comments comments={commentsList} updateComentsList={addNewCommentToList} movieId={movieId} />
             </div>
         </div>
     )

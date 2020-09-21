@@ -15,7 +15,6 @@ function LandingPage() {
         .then(response=> response.json() )
         .then(data=>{
             console.log(data)
-            console.log(data.results)
             setMovies([...movies, ...data.results])
             //setMovies(movies.concat(data.results))
             setPage(data.page)
