@@ -4,6 +4,7 @@ import { useSelector } from 'react-redux';
 import axios from 'axios';
 import LikeDislikes from './LikeDislikes';
 
+
 const {TextArea}= Input;
 
 function SingleComment(props) {
@@ -55,16 +56,16 @@ function SingleComment(props) {
             ></Comment>    
             {openReplyForm &&
              (
-                <form style={{display: 'flex'}} >
-                    <TextArea 
-                        style={{width: '100%', borderRadius: '5px'}}
-                        onChange={handleChange}
-                        value={commentBody}
-                        placeholder="Write your reply"
-                    />
-                    <br/>
-                    <Button style={{width: '20%', height: '52px'}} onClick={handleSubmitReply} >Send</Button>
-                </form>
+                <form style={{display: 'flex', marginTop: '2rem'}} >
+                <TextArea 
+                    style={{width: '100%', borderRadius: '5px'}}
+                    onChange={handleChange}
+                    value={commentBody}
+                    placeholder="Write your comment"
+                />
+                <br/>
+                <Button style={{width: '20%', height: '52px'}} onClick={handleSubmitReply} >Send</Button>
+            </form>
             )
             }
         </div>

@@ -51,3 +51,16 @@ td{
 tr:nth-child(even){
   background-color: #dddddd;
 }
+.send-comment-btn{
+  position: absolute;
+  right: 12%;
+  font-size: 1.5rem;
+   margin: 1rem .1rem 0 1.5rem;
+    color: blue !important
+}
+
+.search-bar,
+.search-bar:hover,
+.search-bar:focus{
+  border-bottom: 2px solid transparent !important;
+}
