@@ -1,12 +1,16 @@
 import React, { Fragment, useEffect, useState } from 'react'
+import {Button, Descriptions, Row, Tabs} from 'antd'
+import axios from 'axios';
 import { API_KEY, API_URL, IMAGE_URL } from '../../Config';
 import MainImage from '../LandingPage/sections/mainImage';
-import {Button, Descriptions, Row} from 'antd'
 import GridCard from '../LandingPage/sections/gridCard';
 import FavouriteButton from './sections/favouriteButton';
 import Comments from './sections/comments';
-import axios from 'axios';
 import LikeDislikes from './sections/LikeDislikes';
+import userImage from './sections/no-image.png'
+import Reviews from './sections/reviews';
+
+const { TabPane } = Tabs;
 
 function MovieDetailsPage(props) {
     const movieId=props.match.params.movieId;
@@ -15,6 +19,7 @@ function MovieDetailsPage(props) {
     const [toggleShowCast, setToggleShowCast] = useState(false)
     const [loadingCast, setLoadingCast] = useState(false)
     const [commentsList, setCommentsList] = useState([])
+    const [reviewList, setReviewList] = useState([]);
 
     const handleToggle=()=>{
         setToggleShowCast(!toggleShowCast)
@@ -40,7 +45,7 @@ function MovieDetailsPage(props) {
             setLoadingCast(!loadingCast)
             setCasts(data.cast)
         })
-        
+
         axios.post('/api/comments/getComments', {movieId: movieId})
         .then(response=>{
             if(response.data.success){
@@ -51,8 +56,26 @@ function MovieDetailsPage(props) {
             }
         })
         .catch(err=> console.log(err.message))
+        
+        fetch(`${API_URL}movie/${movieId}/reviews?api_key=${API_KEY}&language=en-US&page=1`)
+        .then(response=>response.json())
+        .then(data=>{
+            console.log(data)
+            const apiReviews=data.results.map(comment=>{
+                return {
+                    sender: {
+                        image: userImage,
+                        name: comment.author
+                    },
+                    body: comment.content,
+                    movieId: data.id
+                }
+            })
+            setReviewList(apiReviews);  
+        })
 
     }, [])
+
     return (
         <div>
             {movie 
@@ -67,11 +90,11 @@ function MovieDetailsPage(props) {
                 </div>
                 {/*Movie info table*/}
                 <Descriptions title="Movie Info" bordered>
-                    <Descriptions.Item label="Title">{movie.original_title}</Descriptions.Item>
+                    <Descriptions.Item label="Title" span={2}>{movie.original_title}</Descriptions.Item>
                     <Descriptions.Item label="release_date">{movie.release_date}</Descriptions.Item>
                     <Descriptions.Item label="revenue">{movie.revenue}</Descriptions.Item>
                     <Descriptions.Item label="runtime">{movie.runtime}</Descriptions.Item>
-                    <Descriptions.Item label="vote_average" span={2}>{movie.vote_average}</Descriptions.Item>
+                    <Descriptions.Item label="rating" >{movie.vote_average} /10</Descriptions.Item>
                     <Descriptions.Item label="vote_count">{movie.vote_count}</Descriptions.Item>
                     <Descriptions.Item label="status">{movie.status}</Descriptions.Item>
                     <Descriptions.Item label="popularity">{movie.popularity}</Descriptions.Item>
@@ -87,7 +110,7 @@ function MovieDetailsPage(props) {
                     <Row gutter={[16, 16]}>
                     {casts && casts.map((cast, index)=>(
                         <Fragment key={index}>
-                            {cast.profile_path && <GridCard actor image={`${IMAGE_URL}w500/${cast.profile_path}`} /> }
+                            {cast.profile_path && <GridCard actor image={`${IMAGE_URL}w500/${cast.profile_path}`} name={cast.name} character={cast.character} /> }
                         </Fragment>
                     ))}
                 </Row>
@@ -99,7 +122,14 @@ function MovieDetailsPage(props) {
                 </div>
                 <br />
 
-                <Comments comments={commentsList} updateComentsList={addNewCommentToList} movieId={movieId} />
+                <Tabs type="card">
+                    <TabPane tab="Reviews" key="1">
+                        <Reviews reviews={reviewList} movieId={movieId} />
+                    </TabPane>
+                    <TabPane tab="Comments" key="2">
+                        <Comments comments={commentsList} updateComentsList={addNewCommentToList} movieId={movieId} />
+                    </TabPane>
+                </Tabs>
             </div>
         </div>
     )

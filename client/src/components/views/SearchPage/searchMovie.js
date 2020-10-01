@@ -12,6 +12,7 @@ function SearchMovie(props) {
         fetch(`${API_URL}search/movie?api_key=${API_KEY}&language=en-US&query=${query}&page=1&include_adult=false`)
         .then(response=> response.json() )
         .then(data=>{
+            console.log(data);
             setMovies(data.results)
         })
     }, [query])
@@ -30,11 +31,11 @@ function SearchMovie(props) {
                         ? movies.map((movie, index)=>(
                             (movie.poster_path && 
                                 <Fragment key={index}>
-                                    <GridCard image={`${IMAGE_URL}w500/${movie.poster_path}`} movieId={movie.id}/>
+                                    <GridCard image={`${IMAGE_URL}w500/${movie.poster_path}`} movie movieId={movie.id}/>
                                 </Fragment>
                             )
                         ))
-                        : <p>No movies found</p>
+                        : <p style={{textAlign: 'center'}}>No movies found</p>
                     }
                     </Row>
                 </div>

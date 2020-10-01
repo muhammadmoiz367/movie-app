@@ -10,7 +10,7 @@ const { Favourite } = require('../models/favourite');
 
 router.post("/getFavouriteNumber", auth, async (req, res) => {
     try{
-        const response=await Favourite.find({ "movieId": req.body.movieId})
+        const response=await Favourite.find({ "id": req.body.id})
         res.status(200).json({ success: true, favouriteNumber: response.length})
     }
     catch(err){
@@ -33,7 +33,7 @@ router.post("/getFavouriteMovies", auth, async (req, res) => {
 
 router.post("/checkFavourite", auth, async (req, res) => {
     try{
-        const response=await Favourite.find({ movieId: req.body.movieId, userFrom: req.body.userFrom })
+        const response=await Favourite.find({ id: req.body.id, userFrom: req.body.userFrom })
         let findResult=false;
         if(response.length !== 0){
             findResult=true
@@ -61,8 +61,18 @@ router.post("/addFavourite", auth, async (req, res) => {
 
 router.post("/removeFavourite", auth, async (req, res) => {
     try{
-        const favouriteDeleted=await Favourite.findOneAndDelete({ movieId: req.body.movieId, userFrom: req.body.userFrom })
+        const favouriteDeleted=await Favourite.findOneAndDelete({ id: req.body.id, userFrom: req.body.userFrom })
         res.status(200).json({ success: true , msg: 'removed from favourite'})
+    }
+    catch(err){
+        res.status(400).json({ msg: err });
+    }
+});
+
+router.post("/removeAllFavourite", auth, async (req, res) => {
+    try{
+        const favouriteDeleted=await Favourite.deleteMany({})
+        res.status(200).json({ success: true , msg: 'removed all watchlists'})
     }
     catch(err){
         res.status(400).json({ msg: err });

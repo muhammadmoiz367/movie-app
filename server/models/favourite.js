@@ -5,16 +5,19 @@ const favouriteSchema = mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User'
     },
-    movieId: {
+    id: {
         type: String
     },
-    movieTitle: {
+    title: {
         type: String
     },
-    movieImage: {
+    image: {
         type: String
     },
-    movieRuntime: {
+    rating: {
+        type: String
+    }, 
+    category: {
         type: String
     }
 })

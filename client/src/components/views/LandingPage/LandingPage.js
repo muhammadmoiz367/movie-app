@@ -1,61 +1,96 @@
-import React, { Fragment, useEffect, useState } from 'react'
-import {Typography, Row} from 'antd'
-import { API_KEY, API_URL, IMAGE_URL } from '../../Config';
-import MainImage from './sections/mainImage';
-import GridCard from './sections/gridCard';
+import React, { useEffect, useState } from 'react'
+import { API_KEY, API_URL } from '../../Config';
+import MoviesComponent from './sections/MoviesComponent';
+import TVShowsComponent from './sections/TVShowsComponent';
 
-const {Title}=Typography;
 
-function LandingPage() {
+
+function LandingPage(props) {
+    const queryString=props.location.search ? props.location.search.split("&") : ""
+    const categoryQuery=queryString[0] ? queryString[0].split("=")[1].replace("%20", " ") : "";
+    let genreQuery=queryString[1] ? queryString[1].split("=")[1] : "";
+    const languageQuery=queryString[2] ? queryString[2].split("=")[1] : "";
+    console.log(categoryQuery, genreQuery, languageQuery)
     const [movies, setMovies] = useState([])
-    let [page, setPage]=useState(0)
+    const [TVShows, setTVShows]=useState([])
+    let [moviePage, setMoviePage]=useState(0)
+    let [tvShowPage, setTvShowPage]=useState(0)
 
     const fetchMovies=(path)=>{
         fetch(path)
         .then(response=> response.json() )
         .then(data=>{
-            console.log(data)
-            setMovies([...movies, ...data.results])
+            switch(categoryQuery){
+                case 'TV Shows':
+                    setTVShows(data.results);
+                    setTvShowPage(data.page);
+                    break;
+                case 'Movies':
+                    setMovies(data.results)
+                    setMoviePage(data.page)    
+                    break;
+                default:
+                    setMovies(data.results)
+                    setMoviePage(data.page) 
+            }
+            console.log(data.results)
             //setMovies(movies.concat(data.results))
-            setPage(data.page)
         })
     }
-    const handleLoadMoreMovies=()=>{
-        const path=`${API_URL}movie/popular?api_key=${API_KEY}&language=en-US&page=${page+1}`
+    const handleLoadNext=()=>{
+        let path;
+        console.log('clicked')
+        switch(categoryQuery){
+            case 'TV Shows':
+                path=`${API_URL}tv/popular?api_key=${API_KEY}&language=en-US&page=${tvShowPage+1}`
+                break;
+            case 'Movies':
+                path=`${API_URL}discover/movie?api_key=${API_KEY}&sort_by=popularity.desc&include_adult=false&include_video=false&page=${moviePage+1}`
+                break;
+            default:
+                path=`${API_URL}movie/popular?api_key=${API_KEY}&language=en-US&page=${moviePage+1}`
+        }
+        fetchMovies(path)
+    }
+
+    const handleLoadPrevious=()=>{
+        let path;
+        console.log('clicked')
+        switch(categoryQuery){
+            case 'TV Shows':
+                path=`${API_URL}tv/popular?api_key=${API_KEY}&language=en-US&page=${tvShowPage-1}`
+                break;
+            case 'Movies':
+                path=`${API_URL}discover/movie?api_key=${API_KEY}&sort_by=popularity.desc&include_adult=false&include_video=false&page=${moviePage-1}`
+                break;
+            default:
+                path=`${API_URL}movie/popular?api_key=${API_KEY}&language=en-US&page=${moviePage-1}`
+        }
         fetchMovies(path)
     }
 
     useEffect(() => {
-        const endPoint=`${API_URL}movie/popular?api_key=${API_KEY}&language=en-US&page=1`
+        let endPoint;
+        switch(categoryQuery){
+            case 'TV Shows' :
+                endPoint=`${API_URL}tv/popular?api_key=${API_KEY}&language=en-US&page=1`;
+                setMovies([])
+                break;
+            case 'Movies' :
+                endPoint=genreQuery==="all" ? `${API_URL}discover/movie?api_key=${API_KEY}&sort_by=popularity.desc&include_adult=false&include_video=false&page=1&with_original_language=${languageQuery}` : `${API_URL}discover/movie?api_key=${API_KEY}&sort_by=popularity.desc&include_adult=false&include_video=false&page=1&with_genres=${genreQuery}&with_original_language=${languageQuery}`;
+                setTVShows([])
+                break;
+            default:
+                endPoint=`${API_URL}movie/popular?api_key=${API_KEY}&language=en-US&page=1`
+        }
+        console.log(endPoint)
         fetchMovies(endPoint)
-    }, [])
-
+    }, [categoryQuery, languageQuery, genreQuery])
 
     return (
         <>
-            <div style={{ width: '100%', margin: 0}}>
-                {movies[0] && 
-                    <MainImage image={`${IMAGE_URL}w1280/${movies[0].backdrop_path}`} title={movies[0].original_title} text={movies[0].overview} />
-                }
-                {/*Body*/}
-                <div style={{width: '85%', margin: '1rem auto'}}>
-                    <Title level={2}>Latest movies</Title>
-                    <hr/>
-                    {/* Movie cards*/}
-                    <Row gutter={[16, 16]}>
-                        {movies && movies.map((movie, index)=>(
-                            <Fragment key={index}>
-                                <GridCard image={`${IMAGE_URL}w500/${movie.poster_path}`} movieId={movie.id}/>
-                            </Fragment>
-                        ))}
-                    </Row>
-                    <br/>
-                    {/*Load more button*/}
-                    <div style={{display:'flex', justifyContent: 'center'}}>
-                        <button onClick={handleLoadMoreMovies}>Load more</button>
-                    </div>
-                </div>
-            </div>
+            {TVShows[0] && <TVShowsComponent result={TVShows} resultName="TV Shows" loadPrevious={handleLoadPrevious} loadNext={handleLoadNext} page={tvShowPage} /> }
+            {movies[0] && <MoviesComponent result={movies} resultName="Movies" loadPrevious={handleLoadPrevious} loadNext={handleLoadNext} page={moviePage} /> }
         </>
     )
 }

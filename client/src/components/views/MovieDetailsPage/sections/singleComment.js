@@ -58,10 +58,10 @@ function SingleComment(props) {
              (
                 <form style={{display: 'flex', marginTop: '2rem'}} >
                 <TextArea 
-                    style={{width: '100%', borderRadius: '5px'}}
+                    style={{width: '90%', borderRadius: '5px'}}
                     onChange={handleChange}
                     value={commentBody}
-                    placeholder="Write your comment"
+                    placeholder="Write your reply"
                 />
                 <br/>
                 <Button style={{width: '20%', height: '52px'}} onClick={handleSubmitReply} >Send</Button>

@@ -8,10 +8,11 @@ function FavouriteButton(props) {
 
     const favouriteData={
         userFrom: props.userFrom,
-        movieId: props.movieId,
-        movieTitle: props.movieInfo.original_title,
-        movieImage: props.movieInfo.backdrop_path,
-        movieRuntime: props.movieInfo.runtime
+        id: props.tvShow ? props.tvId : props.movieId,
+        title: props.tvShow ? props.tvShowInfo.original_name : props.movieInfo.original_title,
+        image: props.tvShow ? props.tvShowInfo.backdrop_path : props.movieInfo.backdrop_path,
+        rating: props.tvShow ? props.tvShowInfo.vote_average : props.movieInfo.vote_average,
+        category: props.tvShow ? 'TV Show' : 'Movie'
     }
 
     const handleFavouriteButton=()=>{
@@ -63,7 +64,7 @@ function FavouriteButton(props) {
     }, [])
     return (
         <div>
-            <Button onClick={handleFavouriteButton}>{isFavourite ? "Remove from favourites" : "Add to favourite"}: {favouriteNumber}</Button>
+            <Button onClick={handleFavouriteButton}>{isFavourite ? "Remove from watchlist" : "Add to watchlist"}: {favouriteNumber}</Button>
         </div>
     )
 }
